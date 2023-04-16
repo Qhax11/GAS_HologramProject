@@ -1,6 +1,7 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "GAS_TemplateCharacter.h"
+
+#include "Character/HeroBase.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -12,13 +13,13 @@
 
 
 //////////////////////////////////////////////////////////////////////////
-// AGAS_TemplateCharacter
+// AHeroBase
 
-AGAS_TemplateCharacter::AGAS_TemplateCharacter()
+AHeroBase::AHeroBase()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-		
+
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -53,7 +54,7 @@ AGAS_TemplateCharacter::AGAS_TemplateCharacter()
 
 }
 
-void AGAS_TemplateCharacter::BeginPlay()
+void AHeroBase::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
@@ -71,26 +72,26 @@ void AGAS_TemplateCharacter::BeginPlay()
 //////////////////////////////////////////////////////////////////////////
 // Input
 
-void AGAS_TemplateCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
+void AHeroBase::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
+
 		//Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 		//Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AGAS_TemplateCharacter::Move);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AHeroBase::Move);
 
 		//Looking
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGAS_TemplateCharacter::Look);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AHeroBase::Look);
 
 	}
 
 }
 
-void AGAS_TemplateCharacter::Move(const FInputActionValue& Value)
+void AHeroBase::Move(const FInputActionValue& Value)
 {
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
@@ -103,7 +104,7 @@ void AGAS_TemplateCharacter::Move(const FInputActionValue& Value)
 
 		// get forward vector
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	
+
 		// get right vector 
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
@@ -113,7 +114,7 @@ void AGAS_TemplateCharacter::Move(const FInputActionValue& Value)
 	}
 }
 
-void AGAS_TemplateCharacter::Look(const FInputActionValue& Value)
+void AHeroBase::Look(const FInputActionValue& Value)
 {
 	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();

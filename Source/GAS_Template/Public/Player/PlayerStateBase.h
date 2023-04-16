@@ -28,9 +28,9 @@ public:
 
 protected:
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AbilitySystem")
 		class UAbilitySystemComponent* AbilitySystemComponent;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AbilitySystem")
 		class UAttributeSetBase* AttributeSetBase;
 };
