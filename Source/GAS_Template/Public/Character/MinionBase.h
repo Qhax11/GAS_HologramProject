@@ -13,5 +13,19 @@ UCLASS()
 class GAS_TEMPLATE_API AMinionBase : public ACharacterBase
 {
 	GENERATED_BODY()
+
+public:
+
+	AMinionBase();
 	
+
+protected:
+
+	// Actual hard pointer to AbilitySystemComponent
+	UPROPERTY()
+	    class UAbilitySystemComponentBase* HardRefAbilitySystemComponent;
+
+	// Actual hard pointer to AttributeSetBase
+	UPROPERTY()
+		class UAttributeSetBase* HardRefAttributeSetBase;
 };

@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
-
 #include "CharacterBase.generated.h"
 
 UCLASS()
@@ -33,6 +32,7 @@ protected:
 
 	TWeakObjectPtr<class UAbilitySystemComponentBase> AbilitySystemComponent;
 	TWeakObjectPtr<class UAttributeSetBase> AttributeSetBase;
+
 
 public:	
 	// Called every frame
