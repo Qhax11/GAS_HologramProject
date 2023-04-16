@@ -5,6 +5,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "CharacterDataAsset.h"
+#include "TypeDefinitions.h"
+
 #include "CharacterBase.generated.h"
 
 UCLASS()
@@ -19,8 +22,17 @@ public:
 	// Implement IAbilitySystemInterface
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
+	UFUNCTION(BlueprintCallable)
+		UCharacterDataAsset* GetCharacterDataAsset();
+
+	UFUNCTION(BlueprintCallable)
+		void SetCharacterDataAsset(FCharacterData CharacterDataInit);
 
 protected:
+	virtual void PostInitializeComponents() override;
+
+
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -33,6 +45,15 @@ protected:
 	TWeakObjectPtr<class UAbilitySystemComponentBase> AbilitySystemComponent;
 	TWeakObjectPtr<class UAttributeSetBase> AttributeSetBase;
 
+	UPROPERTY(EditDefaultsOnly)
+		UCharacterDataAsset* CharacterDataAsset;
+
+	UPROPERTY()
+		FCharacterData CharacterData;
+
+	void GiveAbilities();
+	void ApplyStartupEffects();
+	void InitializeAttributes();
 
 public:	
 	// Called every frame

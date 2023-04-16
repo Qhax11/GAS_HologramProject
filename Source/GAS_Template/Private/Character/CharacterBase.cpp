@@ -17,10 +17,73 @@ UAbilitySystemComponent* ACharacterBase::GetAbilitySystemComponent() const
 	return AbilitySystemComponent.Get();
 }
 
+UCharacterDataAsset* ACharacterBase::GetCharacterDataAsset()
+{
+	return CharacterDataAsset;
+}
+
+void ACharacterBase::SetCharacterDataAsset(FCharacterData CharacterDataInit)
+{
+	CharacterData = CharacterDataInit;
+}
+
+void ACharacterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (IsValid(CharacterDataAsset))
+	{
+		UE_LOG(LogTemp, Error, TEXT("The character data asset is empty in post"));
+		SetCharacterDataAsset(CharacterDataAsset->CharacterData);
+		GiveAbilities();
+		return;
+	}
+
+}
+
+
+
 // Called when the game starts or when spawned
 void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (!CharacterDataAsset)
+	{
+		UE_LOG(LogTemp, Error, TEXT("The character data asset is empty in beginplay"));
+		return;
+	}
+
+}
+
+void ACharacterBase::GiveAbilities()
+{
+
+	if (AbilitySystemComponent.IsValid()) 
+	{
+		for (TSubclassOf<UGameplayAbility> GameplayAbility : CharacterData.Abilities)
+		{
+			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GameplayAbility));
+		}
+	}
+}
+
+void ACharacterBase::ApplyStartupEffects()
+{
+	/*
+	for (TSubclassOf<UGameplayEffect> GameplayEffect : CharacterData->Effects)
+	{
+		FGameplayEffectSpecHandle NewHandle = AbilitySystemComponent->MakeOutgoingSpec(GameplayEffect, GetCharacterLevel(), EffectContext);
+		if (NewHandle.IsValid())
+		{
+			FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*NewHandle.Data.Get(), AbilitySystemComponent.Get());
+		}
+	}
+	*/
+}
+
+void ACharacterBase::InitializeAttributes()
+{
 	
 }
 

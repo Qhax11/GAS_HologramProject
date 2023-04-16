@@ -2,6 +2,7 @@
 
 
 #include "Character/HeroBase.h"
+#include "AbilitySystem/AbilitySystemComponentBase.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -10,6 +11,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Player/PlayerStateBase.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -67,6 +69,43 @@ void AHeroBase::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+}
+
+void AHeroBase::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	APlayerStateBase* PS = GetPlayerState<APlayerStateBase>();
+	if (PS)
+	{
+		AbilitySystemComponent = Cast<UAbilitySystemComponentBase>(PS->GetAbilitySystemComponent()); 
+		InitializeAttributes();
+		ApplyStartupEffects();
+		GiveAbilities();
+
+	}
+	/*
+	APlayerStateBase* PS = GetPlayerState<APlayerStateBase>();
+	if (PS)
+	{
+		//AbilitySystemComponent = Cast<UAbilitySystemComponentBase>(PS->GetAbilitySystemComponent());
+
+		// AI won't have PlayerControllers so we can init again here just to be sure. No harm in initing twice for heroes that have PlayerControllers.
+		//PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
+
+
+		// Set the AttributeSetBase for convenience attribute functions
+		AttributeSetBase = PS->GetAttributeSetBase();
+
+	
+		InitializeAttributes();
+		ApplyStartupEffects();
+		GiveAbilities();
+
+		//AGDPlayerController* PC = Cast<AGDPlayerController>(GetController());
+		
+	}
+	//AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	*/
 }
 
 //////////////////////////////////////////////////////////////////////////

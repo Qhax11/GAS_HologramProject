@@ -52,13 +52,16 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UAbilitySystemComponent* gas;
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	// To add mapping context
 	virtual void BeginPlay();
+
+	virtual void PossessedBy(AController* NewController) override;
 
 public:
 	/** Returns CameraBoom subobject **/
