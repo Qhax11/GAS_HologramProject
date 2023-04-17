@@ -11,6 +11,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GAS_Template/GAS_Template.h"
 #include "Player/PlayerStateBase.h"
 
 
@@ -74,15 +75,13 @@ void AHeroBase::BeginPlay()
 void AHeroBase::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
+
 	APlayerStateBase* PS = GetPlayerState<APlayerStateBase>();
 	if (PS)
 	{
 		AbilitySystemComponent = Cast<UAbilitySystemComponentBase>(PS->GetAbilitySystemComponent()); 
 
 		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
-
-		// Bind player input to the AbilitySystemComponent. Also called in SetupPlayerInputComponent because of a potential race condition.
-	//	BindASCInput();
 
 		InitializeAttributes();
 		ApplyStartupEffects();
@@ -111,6 +110,9 @@ void AHeroBase::SetupPlayerInputComponent(class UInputComponent* PlayerInputComp
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AHeroBase::Look);
 
 	}
+
+	// Bind player input to the AbilitySystemComponent. We called here because we need initialize of input component
+	BindASCInput();
 
 }
 
@@ -151,16 +153,13 @@ void AHeroBase::Look(const FInputActionValue& Value)
 }
 
 
-/*
 void AHeroBase::BindASCInput()
 {
-	if (!ASCInputBound && AbilitySystemComponent.IsValid() && IsValid(InputComponent))
-	{
-		FTopLevelAssetPath AbilityEnumAssetPath = FTopLevelAssetPath(FName("/Script/GASDocumentation"), FName("EGDAbilityInputID"));
-		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"),
-			FString("CancelTarget"), AbilityEnumAssetPath, static_cast<int32>(EGDAbilityInputID::Confirm), static_cast<int32>(EGDAbilityInputID::Cancel)));
 
-		ASCInputBound = true;
+	if (AbilitySystemComponent.IsValid() && InputComponent)
+	{
+		FTopLevelAssetPath AbilityEnumAssetPath = FTopLevelAssetPath(FName("/Script/GAS_Template"), FName("EAbilityInputID"));
+		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"),
+		FString("CancelTarget"), AbilityEnumAssetPath, static_cast<int32>(EAbilityInputID::Confirm), static_cast<int32>(EAbilityInputID::Cancel)));
 	}
 }
-*/

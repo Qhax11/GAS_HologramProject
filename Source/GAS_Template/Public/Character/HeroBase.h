@@ -52,9 +52,8 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
-//	bool ASCInputBound = false;
-	
-	//void BindASCInput();
+	void BindASCInput();
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

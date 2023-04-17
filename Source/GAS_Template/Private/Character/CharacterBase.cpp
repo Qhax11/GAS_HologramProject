@@ -2,6 +2,7 @@
 
 #include "Character/CharacterBase.h"
 #include "AbilitySystem/AbilitySystemComponentBase.h"
+#include "AbilitySystem/Abilities/GameplayAbilityBase.h"
 
 // Sets default values
 ACharacterBase::ACharacterBase()
@@ -58,12 +59,11 @@ void ACharacterBase::BeginPlay()
 
 void ACharacterBase::GiveAbilities()
 {
-
 	if (AbilitySystemComponent.IsValid()) 
 	{
-		for (TSubclassOf<UGameplayAbility> GameplayAbility : CharacterData.Abilities)
+		for (TSubclassOf<UGameplayAbilityBase> GameplayAbility : CharacterData.Abilities)
 		{
-			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GameplayAbility));
+			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GameplayAbility, 1, static_cast<int32>(GameplayAbility.GetDefaultObject()->AbilityInputID), this));
 		}
 	}
 }
