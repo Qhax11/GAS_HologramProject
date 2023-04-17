@@ -37,7 +37,7 @@ void UAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		// For clamping attribute between zero and max value
-		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
+		//SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
 
 	}
 }

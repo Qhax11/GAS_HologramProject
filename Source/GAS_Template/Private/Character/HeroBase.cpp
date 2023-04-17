@@ -78,34 +78,18 @@ void AHeroBase::PossessedBy(AController* NewController)
 	if (PS)
 	{
 		AbilitySystemComponent = Cast<UAbilitySystemComponentBase>(PS->GetAbilitySystemComponent()); 
+
+		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
+
+		// Bind player input to the AbilitySystemComponent. Also called in SetupPlayerInputComponent because of a potential race condition.
+	//	BindASCInput();
+
 		InitializeAttributes();
 		ApplyStartupEffects();
 		GiveAbilities();
 
 	}
-	/*
-	APlayerStateBase* PS = GetPlayerState<APlayerStateBase>();
-	if (PS)
-	{
-		//AbilitySystemComponent = Cast<UAbilitySystemComponentBase>(PS->GetAbilitySystemComponent());
-
-		// AI won't have PlayerControllers so we can init again here just to be sure. No harm in initing twice for heroes that have PlayerControllers.
-		//PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
-
-
-		// Set the AttributeSetBase for convenience attribute functions
-		AttributeSetBase = PS->GetAttributeSetBase();
-
 	
-		InitializeAttributes();
-		ApplyStartupEffects();
-		GiveAbilities();
-
-		//AGDPlayerController* PC = Cast<AGDPlayerController>(GetController());
-		
-	}
-	//AbilitySystemComponent->InitAbilityActorInfo(this, this);
-	*/
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -167,5 +151,16 @@ void AHeroBase::Look(const FInputActionValue& Value)
 }
 
 
+/*
+void AHeroBase::BindASCInput()
+{
+	if (!ASCInputBound && AbilitySystemComponent.IsValid() && IsValid(InputComponent))
+	{
+		FTopLevelAssetPath AbilityEnumAssetPath = FTopLevelAssetPath(FName("/Script/GASDocumentation"), FName("EGDAbilityInputID"));
+		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"),
+			FString("CancelTarget"), AbilityEnumAssetPath, static_cast<int32>(EGDAbilityInputID::Confirm), static_cast<int32>(EGDAbilityInputID::Cancel)));
 
-
+		ASCInputBound = true;
+	}
+}
+*/

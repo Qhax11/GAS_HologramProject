@@ -52,8 +52,9 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	class UAbilitySystemComponent* gas;
+//	bool ASCInputBound = false;
+	
+	//void BindASCInput();
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
