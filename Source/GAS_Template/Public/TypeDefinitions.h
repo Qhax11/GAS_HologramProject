@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "TypeDefinitions.generated.h"
 
 USTRUCT(BlueprintType)
@@ -12,10 +13,16 @@ struct FCharacterData
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GAS")
-		TArray<TSubclassOf<class UGameplayAbility>> Abilities;
+		TArray<TSubclassOf<class UGameplayAbility>> StartupAbilities;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GAS")
-		TArray<TSubclassOf<class UGameplayEffect>> Effects;
+		TArray<TSubclassOf<class UGameplayEffect>> StartupEffects;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GAS")
+		TSubclassOf<class UGameplayEffect> DefaultAttributes;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GAS")
+		FGameplayTagContainer PermenantTags;
+
 };
 
 

@@ -54,6 +54,10 @@ protected:
 	void GiveAbilities();
 	void ApplyStartupEffects();
 	void InitializeAttributes();
+	void ApplyPermenantTags();
+
+
+	//TArray<FGameplayTag>& InOutGameplayTags;
 
 public:	
 	// Called every frame

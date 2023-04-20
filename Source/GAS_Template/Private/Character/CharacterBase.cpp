@@ -61,34 +61,56 @@ void ACharacterBase::GiveAbilities()
 {
 	if (AbilitySystemComponent.IsValid()) 
 	{
-		for (TSubclassOf<UGameplayAbilityBase> GameplayAbility : CharacterData.Abilities)
+		for (TSubclassOf<UGameplayAbilityBase> GameplayAbility : CharacterData.StartupAbilities)
 		{
-			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GameplayAbility, 1, static_cast<int32>(GameplayAbility.GetDefaultObject()->AbilityInputID), this));
+			if (GameplayAbility) 
+			{
+				AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(GameplayAbility, 1, static_cast<int32>(GameplayAbility.GetDefaultObject()->AbilityInputID), this));
+			}
 		}
 	}
 }
 
 void ACharacterBase::ApplyStartupEffects()
 {
-
 	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
 	EffectContext.AddSourceObject(this);
 
-	for (TSubclassOf<UGameplayEffect> GameplayEffect : CharacterData.Effects)
+	for (TSubclassOf<UGameplayEffect> GameplayEffect : CharacterData.StartupEffects)
 	{
 		FGameplayEffectSpecHandle NewHandle = AbilitySystemComponent->MakeOutgoingSpec(GameplayEffect, 1, EffectContext);
 		if (NewHandle.IsValid())
 		{
 			FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*NewHandle.Data.Get());
-
 		}
 	}
-	 
+	
 }
 
 void ACharacterBase::InitializeAttributes()
 {
-	
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	EffectContext.AddSourceObject(this);
+
+	FGameplayEffectSpecHandle NewHandle = AbilitySystemComponent->MakeOutgoingSpec(CharacterData.DefaultAttributes, 1, EffectContext);
+	if (NewHandle.IsValid())
+	{
+		FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*NewHandle.Data.Get());
+	}
+}
+
+void ACharacterBase::ApplyPermenantTags()
+{
+	/*
+	CharacterData.PermenantTags.GetGameplayTagArray(InOutGameplayTags);
+
+	for (FGameplayTag& InOutGameplayTagsA : InOutGameplayTags)
+	{
+		AbilitySystemComponent->AddLooseGameplayTag(InOutGameplayTagsA);
+	}
+	*/
+
+	AbilitySystemComponent->AddLooseGameplayTags(CharacterData.PermenantTags);
 }
 
 // Called every frame

@@ -83,9 +83,10 @@ void AHeroBase::PossessedBy(AController* NewController)
 
 		AbilitySystemComponent->InitAbilityActorInfo(PS, this);
 
+		GiveAbilities();
 		InitializeAttributes();
 		ApplyStartupEffects();
-		GiveAbilities();
+		ApplyPermenantTags();
 
 	}
 	
@@ -155,7 +156,6 @@ void AHeroBase::Look(const FInputActionValue& Value)
 
 void AHeroBase::BindASCInput()
 {
-
 	if (AbilitySystemComponent.IsValid() && InputComponent)
 	{
 		FTopLevelAssetPath AbilityEnumAssetPath = FTopLevelAssetPath(FName("/Script/GAS_Template"), FName("EAbilityInputID"));
