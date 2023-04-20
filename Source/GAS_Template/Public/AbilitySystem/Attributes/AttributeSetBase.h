@@ -32,18 +32,31 @@ public:
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
-
-
-
 	// Current Health, when 0 we expect owner to die unless prevented by an ability. Capped by MaxHealth.
-// Positive changes can directly use this.
-// Negative changes to Health should go through Damage meta attribute.
-	UPROPERTY(BlueprintReadOnly, Category = "Health")
+    // Positive changes can directly use this.
+    // Negative changes to Health should go through Damage meta attribute.
+
+	UPROPERTY(BlueprintReadOnly, Category = "Endurance")
 		FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UAttributeSetBase, Health)
 
 		// MaxHealth is its own attribute since GameplayEffects may modify it
-		UPROPERTY(BlueprintReadOnly, Category = "Health")
+		UPROPERTY(BlueprintReadOnly, Category = "Endurance")
 		FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UAttributeSetBase, MaxHealth)
+
+		UPROPERTY(BlueprintReadOnly, Category = "Endurance")
+		FGameplayAttributeData Armor;
+	ATTRIBUTE_ACCESSORS(UAttributeSetBase, Armor)
+
+		UPROPERTY(BlueprintReadOnly, Category = "Attack")
+		FGameplayAttributeData PhysicalDamage;
+	ATTRIBUTE_ACCESSORS(UAttributeSetBase, PhysicalDamage)
+		
+		UPROPERTY(BlueprintReadOnly, Category = "Util")
+		FGameplayAttributeData MovementSpeed;
+	ATTRIBUTE_ACCESSORS(UAttributeSetBase, MovementSpeed)
+
+
+
 };

@@ -32,12 +32,8 @@ void UAttributeSetBase::PreAttributeChange(const FGameplayAttribute& Attribute, 
 // After GameplayEffect which Attributes has changed?
 void UAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
+	Super::PostGameplayEffectExecute(Data);
 
-	// If Health is changed
-	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
-	{
-		// For clamping attribute between zero and max value
-		//SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
 
-	}
+	
 }

@@ -3,7 +3,7 @@
 
 #include "Player/PlayerStateBase.h"
 #include "AbilitySystem/AbilitySystemComponentBase.h"
-#include "AbilitySystem/Attributes/AttributeSetBase.h"
+#include "AbilitySystem/Attributes/HeroAttributeSetBase.h"
 
 
 APlayerStateBase::APlayerStateBase()
@@ -11,7 +11,7 @@ APlayerStateBase::APlayerStateBase()
 
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponentBase>(TEXT("AbilitySystemComponent"));
 
-	AttributeSetBase = CreateDefaultSubobject<UAttributeSetBase>(TEXT("AttributeSetBase"));
+	AttributeSetBase = CreateDefaultSubobject<UHeroAttributeSetBase>(TEXT("HeroAttributeSetBase"));
 
 }
 

@@ -22,3 +22,18 @@ AMinionBase::AMinionBase()
 	AttributeSetBase = HardRefAttributeSetBase;
 
 }
+
+void AMinionBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (AbilitySystemComponent.IsValid())
+	{
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+
+		GiveAbilities();
+		InitializeAttributes();
+		ApplyStartupEffects();
+		ApplyPermenantTags();
+	}
+}

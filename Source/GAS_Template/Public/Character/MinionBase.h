@@ -22,10 +22,13 @@ public:
 protected:
 
 	// Actual hard pointer to AbilitySystemComponent
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AbilitySystem")
 	    class UAbilitySystemComponentBase* HardRefAbilitySystemComponent;
 
 	// Actual hard pointer to AttributeSetBase
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AbilitySystem")
 		class UAttributeSetBase* HardRefAttributeSetBase;
+
+	virtual void BeginPlay() override;
+
 };
