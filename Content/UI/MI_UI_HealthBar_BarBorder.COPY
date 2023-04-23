@@ -1,0 +1,25 @@
+Begin Object Class=/Script/Engine.MaterialInstanceConstant Name="MI_UI_HealthBar_BarBorder"
+   Begin Object Class=/Script/UnrealEd.SceneThumbnailInfoWithPrimitive Name="SceneThumbnailInfoWithPrimitive_0"
+   End Object
+   Begin Object Name="SceneThumbnailInfoWithPrimitive_0"
+   End Object
+   ParameterStateId=904E71C64A177742CCB91BBF488743B5
+   Parent=MaterialInstanceConstant'"/Game/UI/Hud/Art/MI_UI_HealthBar_Fill.MI_UI_HealthBar_Fill"'
+   bHasStaticPermutationResource=True
+   ScalarParameterValues(0)=(ParameterInfo=(Name="OffsetTransitions"),ParameterValue=-0.007000,ExpressionGUID=6960DFF1495A7E6BB4C18D872F3F1C8A)
+   ScalarParameterValues(1)=(ParameterInfo=(Name="TransitionSharpness"),ParameterValue=64.000000,ExpressionGUID=BAC3FD3D44C3E32AA0CEC1BAFA286133)
+   ScalarParameterValues(2)=(ParameterInfo=(Name="Opacity_InnerFill"),ParameterValue=0.200000,ExpressionGUID=42EC72314406A87D6924F1A98EBB1A58)
+   ScalarParameterValues(3)=(ParameterInfo=(Name="Opacity_Outline"),ParameterValue=0.200000,ExpressionGUID=B82A762A4E048E2B5E0B15BB7A8FEC75)
+   ScalarParameterValues(4)=(ParameterInfo=(Name="Radius_InnerBar"),ParameterValue=-0.500000,ExpressionGUID=7B3237094264D22A3176C5886DE58F00)
+   ScalarParameterValues(5)=(ParameterInfo=(Name="Radius_InnerOutline"),ParameterValue=-0.187500,ExpressionGUID=CC2DAB8D4C427877CB35C282D44A3A1D)
+   ScalarParameterValues(6)=(ParameterInfo=(Name="Highlight_Scale"),ParameterValue=6.000000,ExpressionGUID=5F49860C411E4972AE2913B5A55E1E7E)
+   ScalarParameterValues(7)=(ParameterInfo=(Name="Highlight_YPosition"),ParameterValue=4.000000,ExpressionGUID=EECCE4534A72AFBB2955FFAF7AD2D0E2)
+   ScalarParameterValues(8)=(ParameterInfo=(Name="PixelHeightOfBrush"),ParameterValue=20.000000,ExpressionGUID=FE9D04924B3C7D6A3D2846B767990D51)
+   ScalarParameterValues(9)=(ParameterInfo=(Name="PixelWidthOfBrush"),ParameterValue=20.000000,ExpressionGUID=D0BE1E4842B1CBB048D83FB313216E29)
+   ScalarParameterValues(10)=(ParameterInfo=(Name="Sharpness"),ParameterValue=12.000000,ExpressionGUID=2AE3B5AA48B75AF40A547783294F4F16)
+   ScalarParameterValues(11)=(ParameterInfo=(Name="RefractionDepthBias"))
+   BasePropertyOverrides=(BlendMode=BLEND_Translucent,ShadingModel=MSM_Unlit,OpacityMaskClipValue=0.333300)
+   StaticParameters=(StaticSwitchParameters=((ParameterInfo=(Name="IsBarFill"),bOverride=True,ExpressionGUID=2E26465249D486EDB810348D5924766B),(Value=True,ParameterInfo=(Name="IsGlowFill"),bOverride=True,ExpressionGUID=4EF412C3434C87B6D34D948F3AF69E73)))
+   ThumbnailInfo=SceneThumbnailInfoWithPrimitive'"SceneThumbnailInfoWithPrimitive_0"'
+   LightingGuid=A45671654580EBEAF7AB59B8055C4A8D
+End Object
