@@ -13,15 +13,5 @@ UCLASS()
 class GAS_TEMPLATE_API UMinionAttributeSetBase : public UAttributeSetBase
 {
 	GENERATED_BODY()
-public:
-
-	// AttributeSet Overrides
-	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
-	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
-
-
-	UPROPERTY(BlueprintReadOnly, Category = "Endurance")
-		FGameplayAttributeData MinionAttribute;
-	ATTRIBUTE_ACCESSORS(UMinionAttributeSetBase, MinionAttribute)
 	
 };
