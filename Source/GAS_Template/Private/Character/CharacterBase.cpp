@@ -32,13 +32,13 @@ void ACharacterBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	if (IsValid(CharacterDataAsset))
+	if (!CharacterDataAsset)
 	{
 		UE_LOG(LogTemp, Error, TEXT("The character data asset is empty in post"));
-		SetCharacterDataAsset(CharacterDataAsset->CharacterData);
-		GiveAbilities();
 		return;
 	}
+
+	SetCharacterDataAsset(CharacterDataAsset->CharacterData);
 
 }
 
@@ -48,12 +48,6 @@ void ACharacterBase::PostInitializeComponents()
 void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (!CharacterDataAsset)
-	{
-		UE_LOG(LogTemp, Error, TEXT("The character data asset is empty in beginplay"));
-		return;
-	}
 
 }
 
