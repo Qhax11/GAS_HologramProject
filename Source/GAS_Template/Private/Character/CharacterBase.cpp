@@ -3,13 +3,14 @@
 #include "Character/CharacterBase.h"
 #include "AbilitySystem/AbilitySystemComponentBase.h"
 #include "AbilitySystem/Abilities/GameplayAbilityBase.h"
+#include "Character/CharacterMovementComponentBase.h"
 
 // Sets default values
-ACharacterBase::ACharacterBase()
+ACharacterBase::ACharacterBase(const class FObjectInitializer& ObjectInitializer) :
+	Super(ObjectInitializer.SetDefaultSubobjectClass<UCharacterMovementComponentBase>(ACharacter::CharacterMovementComponentName))
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 
 }
 
@@ -39,10 +40,7 @@ void ACharacterBase::PostInitializeComponents()
 	}
 
 	SetCharacterDataAsset(CharacterDataAsset->CharacterData);
-
 }
-
-
 
 // Called when the game starts or when spawned
 void ACharacterBase::BeginPlay()
@@ -78,7 +76,6 @@ void ACharacterBase::ApplyStartupEffects()
 			FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*NewHandle.Data.Get());
 		}
 	}
-	
 }
 
 void ACharacterBase::InitializeAttributes()
@@ -95,15 +92,6 @@ void ACharacterBase::InitializeAttributes()
 
 void ACharacterBase::ApplyPermenantTags()
 {
-	/*
-	CharacterData.PermenantTags.GetGameplayTagArray(InOutGameplayTags);
-
-	for (FGameplayTag& InOutGameplayTagsA : InOutGameplayTags)
-	{
-		AbilitySystemComponent->AddLooseGameplayTag(InOutGameplayTagsA);
-	}
-	*/
-
 	AbilitySystemComponent->AddLooseGameplayTags(CharacterData.PermenantTags);
 }
 

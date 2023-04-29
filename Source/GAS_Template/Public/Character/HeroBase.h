@@ -41,7 +41,7 @@ class GAS_TEMPLATE_API AHeroBase : public ACharacterBase
 		class UInputAction* LookAction;
 
 public:
-	AHeroBase();
+	AHeroBase(const class FObjectInitializer& ObjectInitializer);
 
 
 protected:

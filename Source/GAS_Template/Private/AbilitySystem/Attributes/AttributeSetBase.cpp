@@ -3,7 +3,9 @@
 
 #include "AbilitySystem/Attributes/AttributeSetBase.h"
 #include "GameplayEffectExtension.h"
-#include "Character/MinionBase.h"
+#include "AbilitySystemGlobals.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Character.h"
 
 
 UAttributeSetBase::UAttributeSetBase()
@@ -17,12 +19,14 @@ void UAttributeSetBase::PreAttributeChange(const FGameplayAttribute& Attribute, 
 	Super::PreAttributeChange(Attribute, NewValue);
 
 	// If a Max value changes, adjust current to keep Current % of Current to Max
-	if (Attribute == GetMaxHealthAttribute()) // GetMaxHealthAttribute comes from the Macros defined at the top of the header
+	if (Attribute == GetHealthAttribute()) // GetMaxHealthAttribute comes from the Macros defined at the top of the header
 	{
-
+		// For clamping attribute between zero and max value
+		//SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
+		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
 	}
-	
-	else if (Attribute == GetMaxHealthAttribute())
+
+	else if (Attribute == GetMovementSpeedAttribute())
 	{
 		// Cannot slow less than 150 units/s and cannot boost more than 1000 units/s
 		NewValue = FMath::Clamp<float>(NewValue, 150, 1000);
@@ -35,22 +39,18 @@ void UAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCallba
 {
 	Super::PostGameplayEffectExecute(Data);
 
-
 	const FGameplayEffectContextHandle& EffectContext = Data.EffectSpec.GetEffectContext();
 	AActor* Instigator = EffectContext.GetOriginalInstigator();
 	AActor* Causer = EffectContext.GetEffectCauser();
 	FGameplayEffectSpec DamageEffectSpec = Data.EffectSpec;
 
-
-	AMinionBase* Hero = Cast<AMinionBase>(Data.Target.AbilityActorInfo->AvatarActor.Get());
-
+	// Target actor is who effected
+	AActor* TargetActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
+	UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor);
 
 	// If Health is changed
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
-		// For clamping attribute between zero and max value
-		SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
-
 
 		// Send the "GameplayEvent.Death" gameplay event through the owner's ability system.  This can be used to trigger a death gameplay ability.
 		if (GetHealth() <= 0)
@@ -59,18 +59,35 @@ void UAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCallba
 			FGameplayEventData Payload;
 			Payload.EventTag = DeadTag;
 			Payload.Instigator = Instigator;
-			Payload.Target = Hero;
+			Payload.Target = TargetActor;
 			Payload.OptionalObject = DamageEffectSpec.Def;
 			Payload.ContextHandle = DamageEffectSpec.GetEffectContext();
 			Payload.InstigatorTags = *DamageEffectSpec.CapturedSourceTags.GetAggregatedTags();
 			Payload.TargetTags = *DamageEffectSpec.CapturedTargetTags.GetAggregatedTags();
 			Payload.EventMagnitude = Data.EvaluatedData.Magnitude;
 
-			FScopedPredictionWindow NewScopedWindow(Hero->GetAbilitySystemComponent(), true);
-			Hero->GetAbilitySystemComponent()->HandleGameplayEvent(Payload.EventTag, &Payload);
-
-
+			FScopedPredictionWindow NewScopedWindow(TargetASC, false);
+			TargetASC->HandleGameplayEvent(Payload.EventTag, &Payload);
 		}
+
+	}
+
+	else if (Data.EvaluatedData.Attribute == GetMovementSpeedAttribute())
+	{
+
+		ACharacterBase* OwnerCharacter = Cast<ACharacterBase>(TargetActor);
+		if (!OwnerCharacter)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Character cast failed in %s"), *this->GetClass()->GetName());
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::White, FString::Printf(TEXT("Character cast failed in %s"), *this->GetClass()->GetName()));
+			return;
+		}
+		UCharacterMovementComponent* OwnerMovementComponent = OwnerCharacter->GetCharacterMovement();
+		if (!OwnerMovementComponent)
+		{
+			return;
+		}
+		OwnerMovementComponent->MaxWalkSpeed = GetMovementSpeed();
 
 	}
 }

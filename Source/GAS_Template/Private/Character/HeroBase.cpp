@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////////////////////////////
 // AHeroBase
 
-AHeroBase::AHeroBase()
+AHeroBase::AHeroBase(const class FObjectInitializer& ObjectInitializer): Super(ObjectInitializer)
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);

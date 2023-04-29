@@ -17,7 +17,7 @@ class GAS_TEMPLATE_API ACharacterBase : public ACharacter, public IAbilitySystem
 
 public:
 	// Sets default values for this character's properties
-	ACharacterBase();
+	ACharacterBase(const class FObjectInitializer& ObjectInitializer);
 
 	// Implement IAbilitySystemInterface
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;

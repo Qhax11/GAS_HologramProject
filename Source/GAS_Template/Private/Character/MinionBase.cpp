@@ -5,7 +5,7 @@
 #include "AbilitySystem/Attributes/AttributeSetBase.h"
 #include "AbilitySystem/AbilitySystemComponentBase.h"
 
-AMinionBase::AMinionBase()
+AMinionBase::AMinionBase(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 
 	HardRefAbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponentBase>(TEXT("AbilitySystemComponent"));

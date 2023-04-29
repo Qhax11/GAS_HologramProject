@@ -16,7 +16,7 @@ class GAS_TEMPLATE_API AMinionBase : public ACharacterBase
 
 public:
 
-	AMinionBase();
+	AMinionBase(const class FObjectInitializer& ObjectInitializer);
 	
 
 protected:
