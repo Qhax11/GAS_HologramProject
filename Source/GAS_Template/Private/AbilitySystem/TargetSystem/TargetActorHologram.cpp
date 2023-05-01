@@ -8,6 +8,7 @@
 ATargetActorHologram::ATargetActorHologram()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	LongOfTrace = 0;
 
 }
 
@@ -26,7 +27,6 @@ void ATargetActorHologram::ConfirmTargetingAndContinue()
 	InstigatorPawn->SetActorLocation(this->GetActorLocation());
 	FGameplayAbilityTargetDataHandle TargetData;
 	TargetDataReadyDelegate.Broadcast(TargetData);
-	UE_LOG(LogTemp, Warning, TEXT("BÝTTI"));
 
 }
 
@@ -52,10 +52,12 @@ void ATargetActorHologram::Tick(float DeltaSeconds)
 	FRotator ViewRotation;
 	PrimaryPC->GetPlayerViewPoint(ViewPoint, ViewRotation);
 	FVector RotationVector = ViewRotation.Vector();
+	
+	LongOfTrace = LongOfActorCurve->GetFloatValue(ViewRotation.Pitch);
+	UE_LOG(LogTemp, Warning, TEXT("%f"), ViewRotation.Pitch);
+	UE_LOG(LogTemp, Warning, TEXT("%f"), LongOfTrace);
 
-	UE_LOG(LogTemp, Error, TEXT("%f, %f, %f"), RotationVector.X, RotationVector.Y, RotationVector.Z);
-	RotationVector = FVector(RotationVector.X * 500, RotationVector.Y * 500 , 0);
-	UE_LOG(LogTemp, Warning, TEXT("%f, %f, %f"), RotationVector.X, RotationVector.Y, RotationVector.Z);
+	RotationVector = FVector(RotationVector.X * LongOfTrace, RotationVector.Y * LongOfTrace, 0);
 
 
 	bool TryTrace = GetWorld()->LineTraceSingleByChannel(HitResult, StartTrace, StartTrace + RotationVector, ECC_Visibility, QueryParams);

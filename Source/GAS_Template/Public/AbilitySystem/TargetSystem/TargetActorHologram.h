@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbilityTargetActor.h"
+#include "Curves/CurveFloat.h"
 #include "TargetActorHologram.generated.h"
-
 /**
  * 
  */
@@ -24,10 +24,13 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn), Category = "Hologram")
+		class UCurveFloat* LongOfActorCurve;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn), Category = "Hologram")
 		class APawn* InstigatorPawn;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn), Category = "Hologram")
 		float HeightOfTrace;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hologram")
 		float LongOfTrace;
 
 
