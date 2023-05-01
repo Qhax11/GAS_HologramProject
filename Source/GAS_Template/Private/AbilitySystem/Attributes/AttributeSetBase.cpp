@@ -7,7 +7,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
 
-
 UAttributeSetBase::UAttributeSetBase()
 {
 
@@ -22,7 +21,6 @@ void UAttributeSetBase::PreAttributeChange(const FGameplayAttribute& Attribute, 
 	if (Attribute == GetHealthAttribute()) // GetMaxHealthAttribute comes from the Macros defined at the top of the header
 	{
 		// For clamping attribute between zero and max value
-		//SetHealth(FMath::Clamp(GetHealth(), 0.0f, GetMaxHealth()));
 		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
 	}
 
@@ -75,7 +73,7 @@ void UAttributeSetBase::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	else if (Data.EvaluatedData.Attribute == GetMovementSpeedAttribute())
 	{
 
-		ACharacterBase* OwnerCharacter = Cast<ACharacterBase>(TargetActor);
+		ACharacter* OwnerCharacter = Cast<ACharacter>(TargetActor);
 		if (!OwnerCharacter)
 		{
 			UE_LOG(LogTemp, Error, TEXT("Character cast failed in %s"), *this->GetClass()->GetName());
