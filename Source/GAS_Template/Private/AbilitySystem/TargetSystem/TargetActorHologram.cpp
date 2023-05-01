@@ -8,7 +8,7 @@
 ATargetActorHologram::ATargetActorHologram()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	LongOfTrace = 0;
+	LenghtOfTrace = 0;
 
 }
 
@@ -34,7 +34,6 @@ void ATargetActorHologram::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-
 	FCollisionQueryParams QueryParams;
 	QueryParams.bTraceComplex = false;
 	if (MasterPawn)
@@ -42,31 +41,35 @@ void ATargetActorHologram::Tick(float DeltaSeconds)
 		QueryParams.AddIgnoredActor(MasterPawn->GetUniqueID());
 	}
 
-	FHitResult HitResult;
-
-	FVector StartTrace = MasterPawn->GetActorLocation();
-	StartTrace.Z += HeightOfTrace;
-
-
 	FVector ViewPoint;
 	FRotator ViewRotation;
 	PrimaryPC->GetPlayerViewPoint(ViewPoint, ViewRotation);
 	FVector RotationVector = ViewRotation.Vector();
 	
-	LongOfTrace = LongOfActorCurve->GetFloatValue(ViewRotation.Pitch);
-	UE_LOG(LogTemp, Warning, TEXT("%f"), ViewRotation.Pitch);
-	UE_LOG(LogTemp, Warning, TEXT("%f"), LongOfTrace);
+	if (!LenghtOfTraceCurve)
+	{
+		UE_LOG(LogTemp, Error, TEXT("The lenght curve is empty in % s"), *this->GetClass()->GetName());
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::White, FString::Printf(TEXT("The lenght curve is empty in % s"), *this->GetClass()->GetName()));
+		return;
+	}
 
-	RotationVector = FVector(RotationVector.X * LongOfTrace, RotationVector.Y * LongOfTrace, 0);
+	// We get lenght of trace from curve graph and this lenght connected to pitch of player view's rotation
+	LenghtOfTrace = LenghtOfTraceCurve->GetFloatValue(ViewRotation.Pitch);
+	RotationVector = FVector(RotationVector.X * LenghtOfTrace, RotationVector.Y * LenghtOfTrace, 0);
 
-
-	bool TryTrace = GetWorld()->LineTraceSingleByChannel(HitResult, StartTrace, StartTrace + RotationVector, ECC_Visibility, QueryParams);
+	// First trace for forward line
+	FVector TraceStart = MasterPawn->GetActorLocation();
+	TraceStart.Z += HeightOfTrace;
+	FHitResult HitResult;
+	bool TryTrace = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceStart + RotationVector, ECC_Visibility, QueryParams);
 	if (bDebug)
 		DrawDebugLine(GetWorld(), HitResult.TraceStart, HitResult.TraceEnd, FColor::Orange, false, 0.f, 0, 3.f);
 
-
+	// This trace is for down line and we set location of hologram actor to down trace's hit location
 	FHitResult HitResult2;
-	bool TryTrace2 = GetWorld()->LineTraceSingleByChannel(HitResult2, HitResult.TraceEnd, FVector(HitResult.TraceEnd.X, HitResult.TraceEnd.Y,HitResult.TraceEnd.Z * -1), ECC_Visibility, QueryParams);
+	// We draw trace to down
+	FVector DownVector = FVector(HitResult.TraceEnd.X, HitResult.TraceEnd.Y, HitResult.TraceEnd.Z * -1);
+	bool TryTrace2 = GetWorld()->LineTraceSingleByChannel(HitResult2, HitResult.TraceEnd, DownVector, ECC_Visibility, QueryParams);
 	if (bDebug)
 		DrawDebugLine(GetWorld(), HitResult2.TraceStart, HitResult2.TraceEnd, FColor::Blue, false, 0.f, 0, 3.f);
 

@@ -24,14 +24,14 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn), Category = "Hologram")
-		class UCurveFloat* LongOfActorCurve;
+		class UCurveFloat* LenghtOfTraceCurve;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn), Category = "Hologram")
 		class APawn* InstigatorPawn;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn), Category = "Hologram")
 		float HeightOfTrace;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hologram")
-		float LongOfTrace;
+	UPROPERTY()
+		float LenghtOfTrace;
 
 
 	APawn* MasterPawn;
