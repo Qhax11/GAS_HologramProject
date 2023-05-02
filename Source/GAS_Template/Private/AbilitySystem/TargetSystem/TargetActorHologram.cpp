@@ -24,7 +24,11 @@ void ATargetActorHologram::StartTargeting(UGameplayAbility* Ability)
 // This function is called when Wait Target Data Task is confirmed
 void ATargetActorHologram::ConfirmTargetingAndContinue()
 {
-	InstigatorPawn->SetActorLocation(this->GetActorLocation());
+	FVector Location = this->GetActorLocation();
+	// This 90 is because of character's height
+	Location = FVector(Location.X, Location.Y, Location.Z + 90);
+	InstigatorPawn->SetActorLocation(Location);
+
 	FGameplayAbilityTargetDataHandle TargetData;
 	TargetDataReadyDelegate.Broadcast(TargetData);
 
