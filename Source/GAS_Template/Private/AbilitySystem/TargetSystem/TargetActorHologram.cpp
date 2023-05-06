@@ -26,7 +26,7 @@ void ATargetActorHologram::ConfirmTargetingAndContinue()
 {
 	FVector Location = this->GetActorLocation();
 	// This 90 is because of character's height
-	Location = FVector(Location.X, Location.Y, Location.Z + 180);
+	Location = FVector(Location.X, Location.Y, Location.Z + 90);
 	InstigatorPawn->SetActorLocation(Location);
 
 	FGameplayAbilityTargetDataHandle TargetData;
