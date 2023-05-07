@@ -10,8 +10,9 @@ ATargetActorHologram::ATargetActorHologram()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	LenghtOfTrace = 0;
-	bDestroyOnConfirmation = false;
 
+	// Doesent work??
+	bDestroyOnConfirmation = false;
 }
 
 void ATargetActorHologram::StartTargeting(UGameplayAbility* Ability)
@@ -20,23 +21,24 @@ void ATargetActorHologram::StartTargeting(UGameplayAbility* Ability)
 	PrimaryPC = Cast<APlayerController>(Ability->GetAvatarActorFromActorInfo()->GetInstigatorController());
 	MasterPawn = PrimaryPC->GetPawn();
 	SetInstigator(InstigatorPawn);
-	bDestroyOnConfirmation = false;
 
 }
 
 // This function is called when Wait Target Data Task is confirmed
 void ATargetActorHologram::ConfirmTargetingAndContinue()
 {
-	Super::ConfirmTargetingAndContinue();
 
 	FVector Location = this->GetActorLocation();
 	// This 90 is because of character's height
 	Location = FVector(Location.X, Location.Y, Location.Z + 90);
 	InstigatorPawn->SetActorLocation(Location);
-
+	InstigatorPawn->SetActorRotation(this->GetActorRotation());
+	BP_ActorBeforeDestroy();
 	//ABILITY_LOG(Warning, TEXT("AGameplayAbilityTargetActor::CancelTargeting called with null ASC! Actor %s"), *GetName());
 
 
+	// Its doing brodcast to task and its destroy the actor why idk?
+	Super::ConfirmTargetingAndContinue();
 }
 
 void ATargetActorHologram::Tick(float DeltaSeconds)
@@ -84,3 +86,4 @@ void ATargetActorHologram::Tick(float DeltaSeconds)
 
 	SetActorLocation(HitResult2.Location);
 }
+
