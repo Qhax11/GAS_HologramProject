@@ -4,11 +4,13 @@
 #include "AbilitySystem/TargetSystem/TargetActorHologram.h"
 #include "Abilities/GameplayAbility.h"
 #include "DrawDebugHelpers.h"
+#include "AbilitySystemLog.h"
 
 ATargetActorHologram::ATargetActorHologram()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	LenghtOfTrace = 0;
+	bDestroyOnConfirmation = false;
 
 }
 
@@ -18,19 +20,22 @@ void ATargetActorHologram::StartTargeting(UGameplayAbility* Ability)
 	PrimaryPC = Cast<APlayerController>(Ability->GetAvatarActorFromActorInfo()->GetInstigatorController());
 	MasterPawn = PrimaryPC->GetPawn();
 	SetInstigator(InstigatorPawn);
+	bDestroyOnConfirmation = false;
 
 }
 
 // This function is called when Wait Target Data Task is confirmed
 void ATargetActorHologram::ConfirmTargetingAndContinue()
 {
+	Super::ConfirmTargetingAndContinue();
+
 	FVector Location = this->GetActorLocation();
 	// This 90 is because of character's height
 	Location = FVector(Location.X, Location.Y, Location.Z + 90);
 	InstigatorPawn->SetActorLocation(Location);
 
-	FGameplayAbilityTargetDataHandle TargetData;
-	TargetDataReadyDelegate.Broadcast(TargetData);
+	//ABILITY_LOG(Warning, TEXT("AGameplayAbilityTargetActor::CancelTargeting called with null ASC! Actor %s"), *GetName());
+
 
 }
 
