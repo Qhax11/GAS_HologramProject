@@ -23,16 +23,22 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn), Category = "Hologram")
 		class UCurveFloat* LenghtOfTraceCurve;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn), Category = "Hologram")
 		class APawn* InstigatorPawn;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn), Category = "Hologram")
 		float HeightOfTrace;
+
 	UPROPERTY()
 		float LenghtOfTrace;
 
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Ability")
+		void BP_ActorBeforeDestroy();
 
 	APawn* MasterPawn;
 	

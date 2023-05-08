@@ -4,12 +4,15 @@
 #include "AbilitySystem/TargetSystem/TargetActorHologram.h"
 #include "Abilities/GameplayAbility.h"
 #include "DrawDebugHelpers.h"
+#include "AbilitySystemLog.h"
 
 ATargetActorHologram::ATargetActorHologram()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	LenghtOfTrace = 0;
 
+	// Doesent work??
+	bDestroyOnConfirmation = false;
 }
 
 void ATargetActorHologram::StartTargeting(UGameplayAbility* Ability)
@@ -28,10 +31,19 @@ void ATargetActorHologram::ConfirmTargetingAndContinue()
 	// This 90 is because of character's height
 	Location = FVector(Location.X, Location.Y, Location.Z + 90);
 	InstigatorPawn->SetActorLocation(Location);
+	InstigatorPawn->SetActorRotation(this->GetActorRotation());
 
-	FGameplayAbilityTargetDataHandle TargetData;
+	BP_ActorBeforeDestroy();
+	//ABILITY_LOG(Warning, TEXT("AGameplayAbilityTargetActor::CancelTargeting called with null ASC! Actor %s"), *GetName());
+
+	// We need hologram ref in ability so we give the self ref.
+	TArray<TWeakObjectPtr<AActor>> OverlapedActors;
+	OverlapedActors.Add(this);
+	FGameplayAbilityTargetDataHandle TargetData = StartLocation.MakeTargetDataHandleFromActors(OverlapedActors);
 	TargetDataReadyDelegate.Broadcast(TargetData);
 
+	// Its doing brodcast to task and its destroy the actor why idk?
+	//Super::ConfirmTargetingAndContinue();
 }
 
 void ATargetActorHologram::Tick(float DeltaSeconds)
@@ -66,6 +78,7 @@ void ATargetActorHologram::Tick(float DeltaSeconds)
 	TraceStart.Z += HeightOfTrace;
 	FHitResult HitResult;
 	bool TryTrace = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceStart + RotationVector, ECC_Visibility, QueryParams);
+
 	if (bDebug)
 		DrawDebugLine(GetWorld(), HitResult.TraceStart, HitResult.TraceEnd, FColor::Orange, false, 0.f, 0, 3.f);
 
@@ -78,4 +91,7 @@ void ATargetActorHologram::Tick(float DeltaSeconds)
 		DrawDebugLine(GetWorld(), HitResult2.TraceStart, HitResult2.TraceEnd, FColor::Blue, false, 0.f, 0, 3.f);
 
 	SetActorLocation(HitResult2.Location);
+
+
 }
+
