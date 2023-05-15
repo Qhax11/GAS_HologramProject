@@ -43,7 +43,6 @@ class GAS_TEMPLATE_API AHeroBase : public ACharacterBase
 public:
 	AHeroBase(const class FObjectInitializer& ObjectInitializer);
 
-
 protected:
 
 	/** Called for movement input */
