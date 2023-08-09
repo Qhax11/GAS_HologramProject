@@ -24,6 +24,20 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Ability")
 		EAbilityInputID AbilityInputID = EAbilityInputID::None;
 
-	int x;
 
+	// --------------------------------------
+	//	Input
+	// --------------------------------------
+
+	// Called when the input is BEING triggered. This is not a one-time press.
+	UFUNCTION(BlueprintImplementableEvent, Category = "Ability|Input")
+		void OnInputTriggered();
+
+	// Called when the input has released.
+	UFUNCTION(BlueprintImplementableEvent, Category = "Ability|Input")
+		void OnInputReleased();
+
+	// Called when the confirm input is triggered.
+	UFUNCTION(BlueprintImplementableEvent, Category = "Ability|Input")
+		void OnInputConfirmTriggered();
 };

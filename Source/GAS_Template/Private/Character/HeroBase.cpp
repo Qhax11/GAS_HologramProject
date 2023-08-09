@@ -13,6 +13,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "GAS_Template/GAS_Template.h"
 #include "Player/PlayerStateBase.h"
+#include "Player/PlayerControllerBase.h"
+#include "AbilitySystem/Abilities/GameplayAbilityBase.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -97,69 +99,266 @@ void AHeroBase::PossessedBy(AController* NewController)
 
 void AHeroBase::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
-	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-		//Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
-
-		//Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AHeroBase::Move);
-
-		//Looking
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AHeroBase::Look);
-
+	// Check if Enhanced Input Component is valid.
+	UEnhancedInputComponent* EIC = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
+	if (!EIC)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Enhanced Input Component is not valid! Check GDHeroCharacter.cpp"));
+		return;
 	}
 
-	// Bind player input to the AbilitySystemComponent. We called here because we need initialize of input component
+	// Check if the designers added a valid HeroInputConfig into this GDHeroCharacter's derived class blueprint.
+	if (!HeroInputConfig)
+	{
+		UE_LOG(LogTemp, Error, TEXT("GDHeroCharacter doesn't have a valid HeroInputConfig set in their class defaults. No Input will be bound!"));
+		return;
+	}
+
+	// Bind Native Input, such as moving or looking around.
+	BindNativeInput();
+
+	// Bind Hero Abilities to Input Actions. Also called in OnRep_PlayerState because of a potential race condition.
 	BindASCInput();
 
 }
 
-void AHeroBase::Move(const FInputActionValue& Value)
-{
-	// input is a Vector2D
-	FVector2D MovementVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr)
-	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
-		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-
-		// get right vector 
-		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-		// add movement 
-		AddMovementInput(ForwardDirection, MovementVector.Y);
-		AddMovementInput(RightDirection, MovementVector.X);
-	}
-}
-
-void AHeroBase::Look(const FInputActionValue& Value)
-{
-	// input is a Vector2D
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr)
-	{
-		// add yaw and pitch input to controller
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
-	}
-}
-
-
 void AHeroBase::BindASCInput()
 {
-	if (AbilitySystemComponent.IsValid() && InputComponent)
+	if (!bASCInputBound && AbilitySystemComponent.IsValid() && IsValid(InputComponent))
 	{
-		FTopLevelAssetPath AbilityEnumAssetPath = FTopLevelAssetPath(FName("/Script/GAS_Template"), FName("EAbilityInputID"));
-		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"),
-		FString("CancelTarget"), AbilityEnumAssetPath, static_cast<int32>(EAbilityInputID::Confirm), static_cast<int32>(EAbilityInputID::Cancel)));
+		UEnhancedInputComponent* EIC = CastChecked<UEnhancedInputComponent>(InputComponent);
+		check(EIC);
+
+		// For each AbilityInputPair defined in the Config, bind InputActions with their associated Abilities.
+		for (FAbilityInputPair& AbilityInputPair : HeroInputConfig.GetDefaultObject()->AbilityInputPairArray)
+		{
+			UInputAction* InputAction = AbilityInputPair.InputAction;
+			TSubclassOf<UGameplayAbility>& AbilityToTrigger = AbilityInputPair.AbilityToTrigger;
+
+			// Invalid data checks
+			if (!AbilityToTrigger || !InputAction)
+			{
+				UE_LOG(LogTemp, Error, TEXT("One of the AbilityInputPairs has invalid data! "
+					"AbilityToTrigger and/or InputAction is null! Check this Hero's HeroInputConfig variable: %s"), *GetName());
+				continue;
+			}
+
+			// Bind all InputAction Triggers.
+			EIC->BindAction(InputAction, ETriggerEvent::Triggered, this, &AHeroBase::OnInputActionTriggered, AbilityInputPair);
+			// Bind all InputAction Completions.
+			EIC->BindAction(InputAction, ETriggerEvent::Completed, this, &AHeroBase::OnInputActionCompleted, AbilityInputPair);
+		}
+
+		bASCInputBound = true;
+	}
+}
+
+void AHeroBase::Input_Move(const FInputActionValue& InputActionValue)
+{
+	const FVector2D Value = InputActionValue.Get<FVector2D>();
+	const FRotator MovementRotation(0.0f, GetControlRotation().Yaw, 0.0f);
+
+	if (Value.X != 0.0f)
+	{
+		const FVector MovementDirection = MovementRotation.RotateVector(FVector::RightVector);
+		AddMovementInput(MovementDirection, Value.X);
+	}
+
+	if (Value.Y != 0.0f)
+	{
+		const FVector MovementDirection = MovementRotation.RotateVector(FVector::ForwardVector);
+		AddMovementInput(MovementDirection, Value.Y);
+	}
+}
+
+void AHeroBase::Input_LookMouse(const FInputActionValue& InputActionValue)
+{
+	// input is a Vector2D
+	const FVector2D Value = InputActionValue.Get<FVector2D>();
+
+	if (Value.X != 0.0f)
+	{
+		AddControllerYawInput(Value.X);
+	}
+
+	if (Value.Y != 0.0f)
+	{
+		AddControllerPitchInput(Value.Y);
+	}
+}
+
+void AHeroBase::Input_LookStick(const FInputActionValue& InputActionValue)
+{
+}
+
+void AHeroBase::Input_Confirm(const FInputActionValue& InputActionValue)
+{
+	auto ASC = GetAbilitySystemComponent();
+	if (!ASC) return;
+
+	// Find AbilityCDO's Spec.
+	for (FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
+	{
+		if (Spec.IsActive()) 
+		{
+			UGameplayAbility* AbilityCDO = Spec.Ability;
+
+			// If the Ability is set to be non-instanced, then call the custom OnInputReleased function on AbilityCDO.
+			TArray<UGameplayAbility*> Abilities{ AbilityCDO };
+
+			// If the ability is instanced, Reset the Abilities Array and put all the instances into it.
+			if (AbilityCDO->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::NonInstanced)
+			{
+				Abilities.Reset();
+				Abilities = Spec.GetAbilityInstances();
+			}
+
+			// For each Instance of this ability (only AbilityCDO if the ability is NonInstanced), call the custom OnInputTriggered function.
+			for (UGameplayAbility* Instance : Abilities)
+			{
+				if (UGameplayAbilityBase* GDAbility = Cast<UGameplayAbilityBase>(Instance))
+				{
+					GDAbility->OnInputConfirmTriggered();
+				}
+			}
+		}
+	}
+}
+
+void AHeroBase::Input_Cancel(const FInputActionValue& InputActionValue)
+{
+}
+
+void AHeroBase::OnInputActionTriggered(const FInputActionValue& Value, FAbilityInputPair AbilityInputPair)
+{
+	auto ASC = GetAbilitySystemComponent();
+	if (!ASC) return;
+
+	// If IgnoreInputAction exists then we should check whether that InputAction is triggered, if so we shouldn't activate any abilities.
+	if (AbilityInputPair.IgnoreInputAction)
+	{
+		// Get Player Controller
+		if (APlayerControllerBase* PC = Cast<APlayerControllerBase>(GetController()))
+		{
+			// Find the InputActionInstance and check if it's triggered.
+			if (UEnhancedPlayerInput* EPI = Cast<UEnhancedPlayerInput>(PC->PlayerInput)) {
+				const FInputActionInstance* IgnoreInputActionInstance = EPI->FindActionInstanceData(AbilityInputPair.IgnoreInputAction);
+				if (IgnoreInputActionInstance && IgnoreInputActionInstance->GetTriggerEvent() == ETriggerEvent::Triggered)
+				{
+					return;
+				}
+			}
+		}
+	}
+
+	// Get the AbilityCDO (Class Default Object) from AbilityInputPair
+	UGameplayAbility* AbilityCDO = AbilityInputPair.AbilityToTrigger->GetDefaultObject<UGameplayAbility>();
+	FGameplayAbilitySpec* AbilitySpec = nullptr;
+
+	// Find AbilityCDO's Spec.
+	for (FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
+	{
+		if (AbilityCDO == Spec.Ability.Get())
+		{
+			AbilitySpec = &Spec;
+			break;
+		}
+	}
+
+	// Ability Spec couldn't be found because it is not granted to hero. The InputConfig given to the hero is faulty.
+	if (!AbilitySpec)
+	{
+		check(AbilitySpec);
+		UE_LOG(LogTemp, Error, TEXT("Specified Ability is not granted to hero! %s"), *AbilityCDO->GetName());
+		return;
+	}
+
+	// Try to activate the associated Gameplay Ability with the given InputMap's InputAction.
+	ASC->TryActivateAbility(AbilitySpec->Handle);
+
+	// If the Ability is set to be non-instanced, then call the custom OnInputReleased function on AbilityCDO.
+	TArray<UGameplayAbility*> Abilities{ AbilityCDO };
+
+	// If the ability is instanced, Reset the Abilities Array and put all the instances into it.
+	if (AbilityCDO->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::NonInstanced)
+	{
+		Abilities.Reset();
+		Abilities = AbilitySpec->GetAbilityInstances();
+	}
+
+	// For each Instance of this ability (only AbilityCDO if the ability is NonInstanced), call the custom OnInputTriggered function.
+	for (UGameplayAbility* Instance : Abilities)
+	{
+		if (UGameplayAbilityBase* GDAbility = Cast<UGameplayAbilityBase>(Instance))
+		{
+			GDAbility->OnInputTriggered();
+		}
+	}
+
+	// Call the native InputPressed function on AbilitySpec.
+	ASC->AbilitySpecInputPressed(*AbilitySpec);
+}
+
+void AHeroBase::OnInputActionCompleted(const FInputActionValue& Value, FAbilityInputPair AbilityInputPair)
+{
+	if (auto ASC = GetAbilitySystemComponent())
+	{
+		// Get the AbilityCDO (Class Default Object) from AbilityInputPair
+		UGameplayAbility* AbilityCDO = AbilityInputPair.AbilityToTrigger->GetDefaultObject<UGameplayAbility>();
+		FGameplayAbilitySpec* AbilitySpec = nullptr;
+
+		// Find AbilityCDO's Spec.
+		for (FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
+		{
+			if (AbilityCDO == Spec.Ability.Get())
+			{
+				AbilitySpec = &Spec;
+				break;
+			}
+		}
+
+		// Ability Spec couldn't be found because it is not granted to hero. The InputConfig given to the hero is faulty.
+		if (!AbilitySpec)
+		{
+			check(AbilitySpec);
+			UE_LOG(LogTemp, Error, TEXT("Specified Ability is not granted to hero! %s"), *AbilityCDO->GetName());
+			return;
+		}
+
+		// If the Ability is set to be non-instanced, then call the custom OnInputReleased function on AbilityCDO.
+		TArray<UGameplayAbility*> Abilities{ AbilityCDO };
+
+		// If the ability is instanced, Reset the Abilities Array and put all the instances into it.
+		if (AbilityCDO->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::NonInstanced)
+		{
+			Abilities.Reset();
+			Abilities = AbilitySpec->GetAbilityInstances();
+		}
+
+		// For each Instance of this ability (only AbilityCDO if the ability is NonInstanced), call the custom OnInputReleased function.
+		for (UGameplayAbility* Instance : Abilities)
+		{
+			if (UGameplayAbilityBase* Ability = Cast<UGameplayAbilityBase>(Instance))
+			{
+				Ability->OnInputReleased();
+			}
+		}
+
+		// Call the native InputReleased function on AbilitySpec.
+		ASC->AbilitySpecInputReleased(*AbilitySpec);
+	}
+}
+
+void AHeroBase::BindNativeInput()
+{
+	if (auto EIC = Cast<UEnhancedInputComponent>(InputComponent))
+	{
+		EIC->BindAction(HeroInputConfig.GetDefaultObject()->InputMove, ETriggerEvent::Triggered, this, &AHeroBase::Input_Move);
+		EIC->BindAction(HeroInputConfig.GetDefaultObject()->InputLookMouse, ETriggerEvent::Triggered, this, &AHeroBase::Input_LookMouse);
+		EIC->BindAction(HeroInputConfig.GetDefaultObject()->InputLookStick, ETriggerEvent::Triggered, this, &AHeroBase::Input_LookStick);
+		EIC->BindAction(HeroInputConfig.GetDefaultObject()->InputConfirm, ETriggerEvent::Triggered, this, &AHeroBase::Input_Confirm);
+		EIC->BindAction(HeroInputConfig.GetDefaultObject()->InputCancel, ETriggerEvent::Triggered, this, &AHeroBase::Input_Cancel);
 	}
 }
