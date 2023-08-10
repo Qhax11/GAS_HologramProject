@@ -40,4 +40,8 @@ public:
 	// Called when the confirm input is triggered.
 	UFUNCTION(BlueprintImplementableEvent, Category = "Ability|Input")
 		void OnInputConfirmTriggered();
+
+	// Called when the cancel input is triggered.
+	UFUNCTION(BlueprintImplementableEvent, Category = "Ability|Input")
+		void OnInputCancelTriggered();
 };

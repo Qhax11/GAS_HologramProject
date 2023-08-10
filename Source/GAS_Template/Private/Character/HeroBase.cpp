@@ -229,6 +229,36 @@ void AHeroBase::Input_Confirm(const FInputActionValue& InputActionValue)
 
 void AHeroBase::Input_Cancel(const FInputActionValue& InputActionValue)
 {
+	auto ASC = GetAbilitySystemComponent();
+	if (!ASC) return;
+
+	// Find AbilityCDO's Spec.
+	for (FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
+	{
+		if (Spec.IsActive())
+		{
+			UGameplayAbility* AbilityCDO = Spec.Ability;
+
+			// If the Ability is set to be non-instanced, then call the custom OnInputReleased function on AbilityCDO.
+			TArray<UGameplayAbility*> Abilities{ AbilityCDO };
+
+			// If the ability is instanced, Reset the Abilities Array and put all the instances into it.
+			if (AbilityCDO->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::NonInstanced)
+			{
+				Abilities.Reset();
+				Abilities = Spec.GetAbilityInstances();
+			}
+
+			// For each Instance of this ability (only AbilityCDO if the ability is NonInstanced), call the custom OnInputTriggered function.
+			for (UGameplayAbility* Instance : Abilities)
+			{
+				if (UGameplayAbilityBase* GDAbility = Cast<UGameplayAbilityBase>(Instance))
+				{
+					GDAbility->OnInputCancelTriggered();
+				}
+			}
+		}
+	}
 }
 
 void AHeroBase::OnInputActionTriggered(const FInputActionValue& Value, FAbilityInputPair AbilityInputPair)
