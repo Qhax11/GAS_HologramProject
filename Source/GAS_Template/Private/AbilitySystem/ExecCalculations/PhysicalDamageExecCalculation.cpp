@@ -38,14 +38,21 @@ void UPhysicalDamageExecCalculation::Execute_Implementation(const FGameplayEffec
 	// Source attributes
 	float Damage = SourceAttributes->GetPhysicalDamage();
 
-	// If there is bonus damage in effect we captured it
-	Damage += FMath::Max<float>(Spec.GetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), false, -1.0f), 0.0f);
-
 	// Target attributes
 	float PhysicalDamageReduction = TargetAttributes->GetArmor();
 	float TargetHealth = TargetAttributes->GetHealth();
 
-	
+#pragma endregion
+
+	// If there is bonus damage in effect we captured it. This is came from effect and we can put in Blueprint
+	float EffectDamage = FMath::Max<float>(Spec.GetSetByCallerMagnitude(DamageTag, false, -1.0f), 0.0f);
+
+	// If there is a EffectDamage we use it insted of damage
+	if (EffectDamage != 0)
+	{
+		Damage = EffectDamage;
+	}
+
 
 	float MitigatedDamage = Damage - PhysicalDamageReduction;
 
@@ -53,7 +60,4 @@ void UPhysicalDamageExecCalculation::Execute_Implementation(const FGameplayEffec
 	float DamageDone = FMath::Clamp(MitigatedDamage, 0.0f, TargetHealth);
 
 	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(TargetAttributes->GetHealthAttribute(), EGameplayModOp::Additive, -DamageDone));
-
-
-#pragma endregion
 }

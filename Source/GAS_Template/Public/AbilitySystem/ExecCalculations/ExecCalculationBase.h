@@ -14,4 +14,7 @@ class GAS_TEMPLATE_API UExecCalculationBase : public UGameplayEffectExecutionCal
 {
 	GENERATED_BODY()
 	
+public:
+
+	FGameplayTag DamageTag = FGameplayTag::RequestGameplayTag(FName("EffectData.Damage"));
 };
